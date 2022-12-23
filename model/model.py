@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import pickle
 
@@ -18,28 +19,41 @@ results = heart_data['Heart Disease']
 train_model_train, train_model_test, result_train, result_test = train_test_split(train_model, results, test_size=0.2, stratify=results, random_state=2)
 
 
-model_l = LogisticRegression()
-model_l.fit(train_model_train.values, result_train.values)
 
-#Accuracy on training data
-model_l_predictions = model_l.predict(train_model_train.values)
-model_l_accuracy = accuracy_score(model_l_predictions, result_train.values)
 
-#Accuracy on test data
-model_l_prediction = model_l.predict(train_model_test.values)
-model_l_accuracy = accuracy_score(model_l_prediction,result_test.values)
+def fit_and_score(models, X_train, X_test, y_train, y_test):
+    # Random seed for reproducible results
+    np.random.seed(42)
+    # Make a list to keep model scores
+    model_scores = {}
+    # Loop through models
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        model_scores[name] = model.score(X_test, y_test)
+    return model_scores
 
-data = (62,0,0,140,268,0,0,160,0,3.6,0,2,2)
 
-# change the input data to a numpy array
-data_array = np.asarray(data)
+models = {
+          "Logistic Regression": LogisticRegression(), 
+          "Random Forest": RandomForestClassifier()
+        }
 
-# reshape the numpy array as we are predicting for only on instance
-reshaped_data = data_array.reshape(1,-1)
+model_scores = fit_and_score(models= models,
+                         X_train=train_model_train,
+                         X_test=train_model_test,
+                         y_train=result_train,
+                         y_test=result_test)
+    
 
-prediction = model_l.predict(reshaped_data)
-print(*prediction)
+print(model_scores)
+max_acc = -1
+for i in model_scores:
+    if max_acc < model_scores[i]:
+        max_acc = model_scores[i]
+
+model = LogisticRegression()
+model.fit(train_model_train, result_train)
+
 
 filename = 'finalized_model.sav'
-pickle.dump(model_l, open(filename, 'wb'))
-
+pickle.dump(model, open(filename, 'wb'))
