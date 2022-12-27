@@ -18,7 +18,10 @@ def home():
         # data = (62,0,0,140,268,0,0,160,0,3.6,0,2,2)
         data = []
         for i in request.form:
-            data.append(request.form[i])
+            if i != "oldpeak":
+                data.append(int(request.form[i]))
+            else:
+                data.append(float(request.form[i]))
 
         data_array = np.asarray(data)
         reshaped_data = data_array.reshape(1,-1)
@@ -27,4 +30,4 @@ def home():
         
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug = True)
