@@ -4,12 +4,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn import svm
 from sklearn.metrics import accuracy_score
 import pickle
 
 
 #loading the data
-heart_data = pd.read_csv('model/Heart_Disease_Prediction.csv')
+heart_data = pd.read_csv('Heart_Disease_Prediction.csv')
 
 #separating the result from data to train our model
 train_model = heart_data.drop(columns='Heart Disease', axis=1)
@@ -35,7 +38,10 @@ def fit_and_score(models, X_train, X_test, y_train, y_test):
 
 models = {
           "Logistic Regression": LogisticRegression(), 
-          "Random Forest": RandomForestClassifier()
+          "Random Forest": RandomForestClassifier(),
+          "KNN":KNeighborsClassifier(),
+          "Gauss Naive Bayes":GaussianNB(),
+          "Support Vector Machine": svm.SVC()
         }
 
 model_scores = fit_and_score(models= models,
@@ -47,11 +53,14 @@ model_scores = fit_and_score(models= models,
 
 print(model_scores)
 max_acc = -1
+model = None
 for i in model_scores:
     if max_acc < model_scores[i]:
         max_acc = model_scores[i]
+        model = models[i]
 
-model = LogisticRegression()
+# model = LogisticRegression()
+print(model)
 model.fit(train_model_train, result_train)
 
 
